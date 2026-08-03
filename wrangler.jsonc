@@ -1,23 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "timothyboue",
-  "main": ".open-next/worker.js",
-  "compatibility_date": "2025-03-25",
-  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
-  "assets": {
-    "directory": ".open-next/assets",
-    "binding": "ASSETS"
-  },
-  "images": {
-    "binding": "IMAGES"
-  },
-  "services": [
-    {
-      "binding": "WORKER_SELF_REFERENCE",
-      "service": "timothyboue"
-    }
-  ],
-  "observability": {
-    "enabled": true
-  }
+  "pages_build_output_dir": "out",
+  "compatibility_date": "2025-03-25"
 }
