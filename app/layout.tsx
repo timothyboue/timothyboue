@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Roboto_Condensed } from "next/font/google";
+import { preconnect } from "react-dom";
 import "./globals.css";
 import { FadeIntersect } from "@/components/FadeIntersect";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -19,12 +20,13 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
   viewportFit: "cover",
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
+  preconnect("https://cdn.sanity.io");
+
   return (
     <html lang="en" className={robotoCondensed.variable}>
       <body className="archives">

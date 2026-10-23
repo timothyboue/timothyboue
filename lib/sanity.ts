@@ -13,6 +13,7 @@ export type ArchiveEntry = {
   src: string;
   width: number;
   height: number;
+  lqip: string | null;
 };
 
 export type Info = {
@@ -25,7 +26,8 @@ const archiveQuery = `*[_id == "archive"][0].images[defined(asset)]{
   "id": _key,
   "src": asset->url,
   "width": asset->metadata.dimensions.width,
-  "height": asset->metadata.dimensions.height
+  "height": asset->metadata.dimensions.height,
+  "lqip": asset->metadata.lqip
 }`;
 
 const infoQuery = `*[_id == "info"][0]{ body, email, instagram }`;
