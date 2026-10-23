@@ -1,48 +1,33 @@
 "use client";
 
-import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
 import Lenis from "lenis";
-import { useRef } from "react";
-import type { MouseEvent } from "react";
+import { useRef, useState } from "react";
 import { ArchiveStack } from "./ArchiveStack";
+import { Lightbox } from "./Lightbox";
 import { useMountEffect } from "@/hooks/useMountEffect";
-import type { ArchiveEntry } from "@/lib/archive";
-
-gsap.registerPlugin(useGSAP);
-
-const IDLE_DELAY = 300;
-const FADE_DURATION = 0.3;
-
-function fadeToItem(root: HTMLElement | null, active: Element | null) {
-  gsap.utils.toArray<HTMLElement>(".item", root).forEach((item) => {
-    gsap.to(item, {
-      opacity: active === null || item === active ? 1 : 0,
-      duration: FADE_DURATION,
-      ease: "power1.out",
-    });
-  });
-}
+import type { ArchiveEntry } from "@/lib/sanity";
 
 export function ArchiveLoop({ entries }: { entries: ArchiveEntry[] }) {
   const spacerRef = useRef<HTMLDivElement>(null);
-  const wrapRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const stackRef = useRef<HTMLDivElement>(null);
-  const isScrollingRef = useRef(false);
+  const lenisRef = useRef<Lenis | null>(null);
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
 
-  const { contextSafe } = useGSAP({ scope: wrapRef });
-  const focusItem = contextSafe(fadeToItem);
-
-  const onPointerOverMedia = (event: MouseEvent<HTMLDivElement>) => {
-    if (isScrollingRef.current) return;
-    document.body.classList.add("project_hover");
-    focusItem(wrapRef.current, event.currentTarget.closest(".item"));
+  const openImage = (index: number) => {
+    lenisRef.current?.stop();
+    setOpenIndex(index);
   };
 
-  const onPointerLeaveMedia = () => {
-    document.body.classList.remove("project_hover");
-    focusItem(wrapRef.current, null);
+  const closeImage = () => {
+    lenisRef.current?.start();
+    setOpenIndex(null);
+  };
+
+  const stepImage = (direction: 1 | -1) => {
+    setOpenIndex((current) =>
+      current === null ? current : (current + direction + entries.length) % entries.length,
+    );
   };
 
   useMountEffect(() => {
@@ -55,7 +40,6 @@ export function ArchiveLoop({ entries }: { entries: ArchiveEntry[] }) {
     let maxScroll = 0;
     let virtualPosition = 0;
     let lastScroll = 0;
-    let lastInputAt = 0;
 
     const render = () => {
       if (!stackHeight) return;
@@ -71,6 +55,7 @@ export function ArchiveLoop({ entries }: { entries: ArchiveEntry[] }) {
     };
 
     const lenis = new Lenis({ infinite: true, syncTouch: true });
+    lenisRef.current = lenis;
 
     lenis.on("scroll", () => {
       const scroll = lenis.scroll;
@@ -86,9 +71,6 @@ export function ArchiveLoop({ entries }: { entries: ArchiveEntry[] }) {
       }
       if (Math.abs(delta) <= 0.01) return;
 
-      isScrollingRef.current = true;
-      lastInputAt = performance.now();
-      onPointerLeaveMedia();
       virtualPosition += delta;
       render();
     });
@@ -96,9 +78,6 @@ export function ArchiveLoop({ entries }: { entries: ArchiveEntry[] }) {
     let frameId = 0;
     const frame = (time: number) => {
       lenis.raf(time);
-      if (performance.now() - lastInputAt > IDLE_DELAY) {
-        isScrollingRef.current = false;
-      }
       frameId = requestAnimationFrame(frame);
     };
     frameId = requestAnimationFrame(frame);
@@ -121,28 +100,27 @@ export function ArchiveLoop({ entries }: { entries: ArchiveEntry[] }) {
       resizeObserver.disconnect();
       window.removeEventListener("resize", remeasure);
       lenis.destroy();
-      document.body.classList.remove("project_hover");
+      lenisRef.current = null;
     };
   });
 
   return (
     <>
       <div className="arch_spacer h-[6000lvh]" ref={spacerRef} />
-      <div className="fixed inset-0 overflow-hidden arch_wrap" ref={wrapRef}>
+      <div className="fixed inset-0 overflow-hidden">
         <div className="loopTrack" ref={trackRef}>
-          <ArchiveStack
-            entries={entries}
-            onPointerOverMedia={onPointerOverMedia}
-            onPointerLeaveMedia={onPointerLeaveMedia}
-            ref={stackRef}
-          />
-          <ArchiveStack
-            entries={entries}
-            onPointerOverMedia={onPointerOverMedia}
-            onPointerLeaveMedia={onPointerLeaveMedia}
-          />
+          <ArchiveStack entries={entries} onOpen={openImage} ref={stackRef} />
+          <ArchiveStack entries={entries} onOpen={openImage} duplicate />
         </div>
       </div>
+      {openIndex !== null && (
+        <Lightbox
+          entries={entries}
+          index={openIndex}
+          onStep={stepImage}
+          onClose={closeImage}
+        />
+      )}
     </>
   );
 }

@@ -49,3 +49,4 @@ next-env.d.ts
 
 # next dev regenerates this
 AGENTS.md
+/source-images/

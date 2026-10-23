@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Roboto_Condensed } from "next/font/google";
 import "./globals.css";
-import { CursorText } from "@/components/CursorText";
 import { FadeIntersect } from "@/components/FadeIntersect";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -22,6 +21,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -33,7 +33,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <FadeIntersect>
           <SiteFooter />
         </FadeIntersect>
-        <CursorText />
       </body>
     </html>
   );

@@ -1,6 +1,8 @@
 import { ArchiveLoop } from "@/components/ArchiveLoop";
-import { archiveEntries } from "@/lib/archive";
+import { getArchiveEntries } from "@/lib/sanity";
 
-export default function Home() {
-  return <ArchiveLoop entries={archiveEntries} />;
+export default async function Home() {
+  const entries = await getArchiveEntries();
+  if (entries.length === 0) return null;
+  return <ArchiveLoop entries={entries} />;
 }

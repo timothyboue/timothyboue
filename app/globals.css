@@ -6,8 +6,8 @@
 
 html,
 body {
-  font-size: min(16px, 1.1111111111vw);
-  line-height: min(15px, 1.0416666667vw);
+  font-size: clamp(12px, 1.1111111111vw, 16px);
+  line-height: clamp(12px, 1.0416666667vw, 15px);
   font-family: var(--font-roboto-condensed), sans-serif;
   font-weight: 600;
   overscroll-behavior: none;
@@ -30,6 +30,10 @@ html.lenis body {
   -ms-overflow-style: none;
 }
 
+html.lenis.lenis-stopped {
+  overflow: clip;
+}
+
 html.lenis::-webkit-scrollbar,
 html.lenis body::-webkit-scrollbar {
   display: none;
@@ -47,13 +51,13 @@ img {
 }
 
 .text-16 {
-  font-size: min(16px, 1.1111111111vw);
-  line-height: min(15px, 1.0416666667vw);
+  font-size: clamp(13px, 1.1111111111vw, 16px);
+  line-height: clamp(13px, 1.0416666667vw, 15px);
 }
 
 .text-11 {
-  font-size: min(11px, 0.7638888889vw);
-  line-height: min(10px, 0.6944444444vw);
+  font-size: clamp(10px, 0.7638888889vw, 11px);
+  line-height: clamp(10px, 0.6944444444vw, 10px);
 }
 
 @media (max-width: 768px) {
@@ -106,10 +110,6 @@ body.archives {
   position: relative;
 }
 
-.item img {
-  transition: opacity 0.3s ease-in-out;
-}
-
 .fade-intersect:not(.no_opacity) {
   opacity: 0;
 }
@@ -119,26 +119,60 @@ body.archives {
   transition: opacity 0.6s ease-in-out;
 }
 
-#cursor_text {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 1000;
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.item:focus-visible,
+.lightbox button:focus-visible,
+a:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: 2px;
+}
+
+.info p {
+  line-height: 1.25;
+}
+
+.lightbox {
+  --bar: calc(1rem + 2.5em);
+  height: 100dvh;
+  touch-action: none;
+  cursor: e-resize;
+}
+
+.lightbox[data-side="prev"] {
+  cursor: w-resize;
+}
+
+.lightbox_bar {
+  height: var(--bar);
+  align-items: center;
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
+}
+
+.lightbox_top {
+  padding-top: env(safe-area-inset-top);
+  height: calc(var(--bar) + env(safe-area-inset-top));
+}
+
+.lightbox_bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+  height: calc(var(--bar) + env(safe-area-inset-bottom));
+}
+
+.lightbox_bar button {
+  padding: 0.75em 0;
+}
+
+.lightbox_stage {
+  top: calc(var(--bar) + env(safe-area-inset-top));
+  bottom: calc(var(--bar) + env(safe-area-inset-bottom));
+  left: max(1rem, env(safe-area-inset-left));
+  right: max(1rem, env(safe-area-inset-right));
   pointer-events: none;
-  opacity: 0;
-  font-size: 1rem;
-  color: #fff;
-  mix-blend-mode: difference;
-  transform: translate(var(--x), var(--y));
-  transition: opacity 0.2s ease-in-out;
-}
-
-body.project_hover #cursor_text {
-  opacity: 1;
-}
-
-@media (hover: none) {
-  #cursor_text {
-    display: none;
-  }
 }
